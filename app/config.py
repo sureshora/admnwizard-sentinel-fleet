@@ -7,13 +7,14 @@ class Settings(BaseSettings):
     """Application configuration loaded from environment variables."""
 
     app_name: str = "AdmnWizard Sentinel Fleet"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     environment: str = "development"
     host: str = "0.0.0.0"
     port: int = 8080
     log_level: str = "INFO"
     google_cloud_project: str | None = None
     google_cloud_location: str = "us-central1"
+    gemini_model: str = "gemini-3.7-flash"
 
     model_config = SettingsConfigDict(
         env_file=".env",

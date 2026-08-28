@@ -4,111 +4,109 @@
 
 > Hackathon track: **The Fortified Enterprise Fleet**
 
-Sentinel Fleet is an event-driven enterprise agent system designed to discover approved agents, investigate risky application changes, retain investigation context, enforce security policies, and produce auditable remediation decisions.
+## SENTINEL-002 — Real ADK + Gemini Orchestrator
 
-## Current milestone
+This milestone introduces the first real Google ADK agent and Gemini model configuration. The project now contains an ADK `Agent` and an ADK `App` that can be run through Google's current Agents CLI / ADK development tooling.
 
-**SENTINEL-001 — Repository & Runtime Foundation**
+Google's current ADK project structure uses an `Agent`, an `App`, and a model configuration; the current official examples use `google-adk[gcp]` and Gemini Flash models. The project is therefore structured around that pattern rather than a simulated agent. 
 
-This milestone establishes the reproducible Python service foundation, configuration model, event contract, health endpoint, and development commands. Google Cloud/ADK integrations are introduced in subsequent milestones and will only be described as active after they are actually wired and verified.
-
-## Planned architecture
+## Architecture at this milestone
 
 ```text
 Enterprise Change Event
         |
         v
-     Pub/Sub
+  Sentinel API contract
         |
         v
- ADK Orchestrator
+  ADK / Gemini Orchestrator
         |
-   +----+----+----------------+
-   |         |                |
-   v         v                v
-Security   Privacy         License
- Agent      Agent            Agent
-   |         |                |
-   +---------+----------------+
-             |
-             v
-       Risk Synthesizer
-             |
-       +-----+-----+
-       |           |
-       v           v
-   Remediation   Audit
-       |           |
-       +-----+-----+
-             v
-     Observability
+        v
+Investigation Plan
+        |
+        +-----------------------------+
+        | security questions          |
+        | privacy/data-flow questions |
+        | licensing questions         |
+        | evidence required           |
+        | next actions                 |
+        | uncertainty                  |
+        +-----------------------------+
 ```
 
-## Repository structure
+Specialist agents, event transport, persistent memory, gateway, Model Armor, and production observability are intentionally reserved for later milestones. They must not be described as active until they are actually wired and verified.
 
-```text
-admnwizard-sentinel-fleet/
-├── app/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── main.py
-│   └── models.py
-├── tests/
-│   ├── __init__.py
-│   └── test_foundation.py
-├── .env.example
-├── .gitignore
-├── pyproject.toml
-└── README.md
-```
+## Prerequisites
+
+- Python 3.11+
+- Google Cloud project with Vertex AI access, or a Gemini API configuration supported by ADK
+- Google authentication configured for the selected Gemini access path
+- Optional: `uv` / Google's current Agents CLI for the ADK playground
 
 ## Local setup
-
-Python 3.11+ is recommended.
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
-```
-
-Create environment configuration:
-
-```powershell
 Copy-Item .env.example .env
 ```
 
-Run the service:
+Set at minimum:
+
+```text
+GOOGLE_CLOUD_PROJECT=your-project-id
+GOOGLE_CLOUD_LOCATION=us-central1
+GEMINI_MODEL=gemini-3.7-flash
+```
+
+For Google Cloud authentication, use Application Default Credentials in the development environment. Do not commit credentials or `.env` files.
+
+## Run the Sentinel API foundation
 
 ```powershell
 uvicorn app.main:app --reload --port 8080
 ```
 
-Verify:
+Health check:
 
 ```powershell
 Invoke-RestMethod http://127.0.0.1:8080/health
 ```
 
-Run tests:
+## Run the real ADK agent
+
+Install the current Google Agents CLI if desired:
+
+```powershell
+uvx google-agents-cli setup
+```
+
+Then from the repository root, use the ADK playground workflow supported by the current Agents CLI:
+
+```powershell
+agents-cli playground
+```
+
+Or run a single prompt:
+
+```powershell
+agents-cli run "Analyze this change: a customer-support AI application is adding an unapproved external AI API that will receive customer conversations. Produce the security, privacy, licensing, evidence, and next-action investigation plan."
+```
+
+The agent must be able to authenticate to Gemini for an actual model response. Without credentials/model access, local import and structural tests can still validate the application, but an LLM response cannot be honestly claimed.
+
+## Test
 
 ```powershell
 pytest
 ```
 
-## Engineering rules
-
-- Complete files are committed; milestone changes are not distributed as partial diffs.
-- Existing working files are preserved unless a milestone explicitly revises them.
-- No simulated Google Cloud capability will be presented as a real integration.
-- Every major integration must have a demonstrable verification path.
-- Hackathon implementation is optimized for the official Fortified Enterprise Fleet requirements and the judging criteria: operational utility, architectural discipline, and demo/production readiness.
-
 ## Milestones
 
 - [x] SENTINEL-001 — Repository & Runtime Foundation
-- [ ] SENTINEL-002 — ADK + Gemini Orchestrator
+- [x] SENTINEL-002 — ADK + Gemini Orchestrator
 - [ ] SENTINEL-003 — Security / Privacy / License Agents
 - [ ] SENTINEL-004 — Event-Driven Execution + Persistent State
 - [ ] SENTINEL-005 — Agent Governance / Security Layer
@@ -117,3 +115,7 @@ pytest
 - [ ] SENTINEL-008 — End-to-End Hackathon Demo Scenario
 - [ ] SENTINEL-009 — README + Architecture + Deployment Proof
 - [ ] SENTINEL-010 — Final Submission Package
+
+## Engineering rule
+
+Every milestone is a complete, reproducible checkpoint. Existing working files are preserved unless explicitly revised. Real Google capabilities are never represented as implemented until they are actually connected and verified.

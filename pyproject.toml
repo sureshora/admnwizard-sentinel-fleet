@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "admnwizard-sentinel-fleet"
-version = "0.1.0"
+version = "0.2.0"
 description = "Autonomous enterprise AI security and change response platform"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.116,<1.0",
+    "google-adk[gcp]>=2.0.0,<3.0.0",
     "pydantic-settings>=2.10,<3.0",
     "uvicorn[standard]>=0.35,<1.0",
 ]

@@ -1,0 +1,11 @@
+from google.adk.apps import App
+
+from .agents.orchestrator import root_agent
+
+
+app = App(
+    name="app",
+    root_agent=root_agent,
+)
+
+__all__ = ["app", "root_agent"]
